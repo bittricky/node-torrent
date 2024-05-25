@@ -1,7 +1,7 @@
 import net from "net";
-import messageHandler from "./message-handler";
-import { infoHash, pieceLength } from "../torrent/torrent-parser";
-import createPieceManager from "../torrent/piece-manager";
+import messageHandler from "./message-handler.js";
+import { infoHash, pieceLength } from "../torrent/torrent-parser.js";
+import createPieceManager from "../torrent/piece-manager.js";
 
 const download = (peer, torrent) => {
   const socket = new net.Socket();
