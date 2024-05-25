@@ -2,12 +2,12 @@ import fs from "fs";
 import bencode from "bencode";
 import crypto from "crypto";
 
-const open = (filepath) => {
+export const open = (filepath) => {
   const torrent = bencode.decode(fs.readFileSync(filepath));
   return torrent;
 };
 
-const size = (torrent) => {
+export const size = (torrent) => {
   const size = torrent.info.files
     ? torrent.info.files.map((file) => file.length).reduce((a, b) => a + b)
     : torrent.info.length;
@@ -15,12 +15,12 @@ const size = (torrent) => {
   return Buffer.from(BigInt(size).toString(16).padStart(16, "0"), "hex");
 };
 
-const infoHash = (torrent) => {
+export const infoHash = (torrent) => {
   const info = bencode.encode(torrent.info);
   return crypto.createHash("sha1").update(info).digest();
 };
 
-const pieceLength = (torrent, pieceIndex) => {
+export const pieceLength = (torrent, pieceIndex) => {
   const totalLength = size(torrent);
   const pieceLength = torrent.info["piece length"];
   const lastPieceLength = totalLength % pieceLength;
@@ -29,7 +29,7 @@ const pieceLength = (torrent, pieceIndex) => {
   return pieceIndex === numberOfPieces - 1 ? lastPieceLength : pieceLength;
 };
 
-const blockLength = (torrent, pieceIndex, blockIndex) => {
+export const blockLength = (torrent, pieceIndex, blockIndex) => {
   const pieceLength = torrent.info["piece length"];
   const lastPieceLength = size(torrent) % pieceLength;
   const blockLength = 16384;
@@ -45,7 +45,7 @@ const blockLength = (torrent, pieceIndex, blockIndex) => {
     : blockLength;
 };
 
-const pieces = (torrent) => {
+export const pieces = (torrent) => {
   const buffer = torrent.info.pieces;
   const pieces = [];
 
@@ -54,13 +54,4 @@ const pieces = (torrent) => {
   }
 
   return pieces;
-};
-
-export default {
-  open,
-  size,
-  infoHash,
-  pieceLength,
-  blockLength,
-  pieces,
 };
