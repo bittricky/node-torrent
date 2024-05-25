@@ -1,9 +1,13 @@
+// src/tracker/tracker.js
+
 import dgram from "dgram";
 import { Buffer } from "buffer";
 import crypto from "crypto";
+import generatePeerId from "../utils/id-generator";
+import torrentParser from "../torrent/torrent-parser";
 
 const getPeers = (torrent, callback) => {
-  const socket = dgram.createSocket("udp6");
+  const socket = dgram.createSocket("udp4");
   const announceUrl = String.fromCharCode(...torrent.announce);
   const urlObj = new URL(announceUrl);
 
@@ -46,7 +50,7 @@ const buildAnnounceRequest = (connectionId, torrent) => {
   buf.writeUInt32BE(1, 8);
   crypto.randomBytes(4).copy(buf, 12);
   torrentParser.infoHash(torrent).copy(buf, 16);
-  getId().copy(buf, 36);
+  generatePeerId().copy(buf, 36);
   Buffer.alloc(8).copy(buf, 56);
   torrentParser.size(torrent).copy(buf, 64);
   Buffer.alloc(8).copy(buf, 72);
@@ -87,13 +91,6 @@ const parseAnnounceResponse = (res) => {
     seeders: res.readUInt32BE(16),
     peers,
   };
-};
-
-const getId = () => {
-  const id = Buffer.alloc(20);
-  id.write("-GT0001-");
-  crypto.randomBytes(12).copy(id, 8);
-  return id;
 };
 
 export { getPeers };
