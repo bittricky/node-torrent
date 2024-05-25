@@ -7,11 +7,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./lib/index.js"
+    "start": "node index.js"
   },
   "license": "ISC",
   "packageManager": "yarn@4.1.1",
   "dependencies": {
-    "bencode": "^4.0.0"
+    "bencode": "^4.0.0",
+    "buffer": "^6.0.3",
+    "crypto": "^1.0.1",
+    "dgram": "^1.0.1",
+    "net": "^1.0.2",
+    "url": "^0.11.3"
   }
 }
