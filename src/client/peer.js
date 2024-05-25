@@ -1,6 +1,6 @@
 import net from "net";
 import messageHandler from "./message-handler";
-import torrentParser from "../torrent/torrent-parser";
+import { infoHash, pieceLength } from "../torrent/torrent-parser";
 import createPieceManager from "../torrent/piece-manager";
 
 const download = (peer, torrent) => {
@@ -48,7 +48,7 @@ const buildHandshake = (torrent) => {
   buf.write("BitTorrent protocol", 1);
   buf.writeUInt32BE(0, 20);
   buf.writeUInt32BE(0, 24);
-  torrentParser.infoHash(torrent).copy(buf, 28);
+  infoHash(torrent).copy(buf, 28);
   generatePeerId().copy(buf, 48);
   return buf;
 };
@@ -110,7 +110,7 @@ const requestPiece = (socket, torrent, pieceManager) => {
     const requestMsg = messageHandler.buildMessage.request({
       index: piece.index,
       begin: 0,
-      length: torrentParser.pieceLength(torrent, piece.index),
+      length: pieceLength(torrent, piece.index),
     });
     socket.write(requestMsg);
     pieceManager.markRequested(piece.index);

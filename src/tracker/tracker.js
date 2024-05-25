@@ -1,10 +1,8 @@
-// src/tracker/tracker.js
-
 import dgram from "dgram";
 import { Buffer } from "buffer";
 import crypto from "crypto";
 import generatePeerId from "../utils/id-generator";
-import torrentParser from "../torrent/torrent-parser";
+import { infoHash, size } from "../torrent/torrent-parser";
 
 const getPeers = (torrent, callback) => {
   const socket = dgram.createSocket("udp4");
@@ -49,10 +47,10 @@ const buildAnnounceRequest = (connectionId, torrent) => {
   connectionId.copy(buf, 0);
   buf.writeUInt32BE(1, 8);
   crypto.randomBytes(4).copy(buf, 12);
-  torrentParser.infoHash(torrent).copy(buf, 16);
+  infoHash(torrent).copy(buf, 16);
   generatePeerId().copy(buf, 36);
   Buffer.alloc(8).copy(buf, 56);
-  torrentParser.size(torrent).copy(buf, 64);
+  size(torrent).copy(buf, 64);
   Buffer.alloc(8).copy(buf, 72);
   buf.writeUInt32BE(0, 80);
   buf.writeUInt32BE(0, 84);
