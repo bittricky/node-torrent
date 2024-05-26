@@ -8,10 +8,13 @@ const getPeers = (torrent, callback) => {
   const socket = dgram.createSocket("udp4");
   const announceUrl = String.fromCharCode(...torrent.announce);
   const urlObj = new URL(announceUrl);
+  console.log("Connecting to tracker:", urlObj);
 
   sendConnect(socket, urlObj);
 
   socket.on("message", (response) => {
+    console.log("Received message from tracker:", response);
+
     if (responseType(response) === "connect") {
       const connectionResponse = parseConnectionResponse(response);
       const announceRequest = buildAnnounceRequest(
@@ -30,6 +33,15 @@ const getPeers = (torrent, callback) => {
       callback(announceResponse.peers);
     }
   });
+
+  socket.on("error", (err) => {
+    console.error(`Socket error: ${err.message}`);
+  });
+
+  setTimeout(() => {
+    console.error("Tracker connecion timeout");
+    socket.close();
+  }, 15000);
 };
 
 const sendConnect = (socket, urlObj) => {
@@ -38,6 +50,7 @@ const sendConnect = (socket, urlObj) => {
   buf.writeUInt32BE(0x27101980, 4);
   buf.writeUInt32BE(0, 8);
   crypto.randomBytes(4).copy(buf, 12);
+  console.log("Sending connect message:", buf);
 
   socket.send(buf, 0, buf.length, urlObj.port, urlObj.hostname);
 };
